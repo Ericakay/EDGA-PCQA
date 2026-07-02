@@ -210,34 +210,34 @@ class EDGA(nn.Module):
     def forward(self, x):
         batch_size = x.size(0)
 
-        # 第一层
+     
         x = get_graph_feature(x, self.args.eval, drop_rate=self.args.q1, k=self.k)
         x = self.conv1(x)  # [B, 64, N, K]
         x = self.gat1(x)  # [B, 64, N]
         x1 = x
 
-        # 第二层
+        
         x = get_graph_feature(x1, self.args.eval, drop_rate=self.args.q2, k=self.k)
         x = self.conv2(x)  # [B, 64, N, K]
         x = self.gat2(x)  # [B, 64, N]
         x2 = x
 
-        # 第三层
+       
         x = get_graph_feature(x2, self.args.eval, drop_rate=self.args.q3, k=self.k)
         x = self.conv3(x)  # [B, 128, N, K]
         x = self.gat3(x)  # [B, 128, N]
         x3 = x
 
-        # 第四层
+        
         x = get_graph_feature(x3, self.args.eval, drop_rate=self.args.q4, k=self.k)
         x = self.conv4(x)  # [B, 256, N, K]
         x = self.gat4(x)  # [B, 256, N]
         x4 = x
 
-        # 特征拼接
+       
         x = torch.cat([x1, x2, x3, x4], dim=1)  # [B, 512, N]
 
-        # 最终卷积和池化
+      
         x = self.conv5(x)  # [B, emb_dims, N]
         x1 = F.adaptive_max_pool1d(x, 1).view(batch_size, -1)
         x2 = F.adaptive_avg_pool1d(x, 1).view(batch_size, -1)
@@ -340,8 +340,8 @@ class SpatialAttention(nn.Module):  # !!!
 #             y = x
 #             x = self.pct(x) # final [32,256,256]  [32,256]
 #             y = self.EDGA(y) # final [32,2048]
-#             pct_att = self.channel_att(x)  # 通道注意力
-#             EDGA_att = self.spatial_att(y.unsqueeze(-1)).squeeze()  # 空间注意力
+#             pct_att = self.channel_att(x)   
+#             EDGA_att = self.spatial_att(y.unsqueeze(-1)).squeeze()  
 #             x = torch.cat((pct_att, EDGA_att), dim=1)
 #             x = F.leaky_relu(self.bn6(self.linear1(x)), negative_slope=0.2)
 #             x = self.dp1(x)
